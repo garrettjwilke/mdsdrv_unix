@@ -46,7 +46,3 @@ make      # clone deps, build, copy mdsdrv.bin
 ### Output Location
 
 The resulting `mdsdrv.bin` file will be located in the project root directory (next to `build.sh`):
-
-```
-./mdsdrv.bin
-```
