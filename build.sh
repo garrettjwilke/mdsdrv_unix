@@ -1,44 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Check if directory argument is provided
-if [ $# -eq 0 ]; then
-  echo "ERROR: Directory argument is required" >&2
-  echo "Usage: $0 <directory>" >&2
-  echo "Example: $0 /path/to/mdsdrv (or base dir like /path/to/build)" >&2
-  exit 1
-fi
+# Get the directory where this script is located (project root)
+SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-TARGET_DIR="$1"
-
-# Expand ~ to home directory if present and drop trailing slash
-TARGET_DIR="${TARGET_DIR/#\~/$HOME}"
-TARGET_DIR="${TARGET_DIR%/}"
-
-# If user passes a base directory (e.g., ~/build), append MDSDRV automatically
-TARGET_BASENAME="$(basename "${TARGET_DIR}")"
-if [ "${TARGET_BASENAME}" != "MDSDRV" ]; then
-  BASE_DIR="${TARGET_DIR}"
-  TARGET_NAME="MDSDRV"
-else
-  BASE_DIR="$(dirname "${TARGET_DIR}")"
-  TARGET_NAME="${TARGET_BASENAME}"
-fi
-
-# Validate base directory
-if [ -e "${BASE_DIR}" ] && [ ! -d "${BASE_DIR}" ]; then
-  echo "ERROR: '${BASE_DIR}' exists but is not a directory" >&2
-  exit 1
-fi
-
-if [ ! -d "${BASE_DIR}" ]; then
-  echo "ERROR: Base directory '${BASE_DIR}' does not exist" >&2
-  exit 1
-fi
-
-# Normalize to absolute paths
-BASE_DIR="$(cd "${BASE_DIR}" && pwd)"
-MDSDRV_DIR="${BASE_DIR}/${TARGET_NAME}"
+# MDSDRV will be cloned in the same directory as this script
+MDSDRV_DIR="${SCRIPT_ROOT}/MDSDRV"
 
 # Validate target directory if it already exists
 if [ -e "${MDSDRV_DIR}" ] && [ ! -d "${MDSDRV_DIR}" ]; then
@@ -313,6 +280,10 @@ if [ "$ACTUAL_HASH" != "$EXPECTED_HASH" ]; then
   error-message "SHA-256 hash mismatch for mdsdrv.bin. Expected: $EXPECTED_HASH, Got: $ACTUAL_HASH"
 fi
 echo "SHA-256 hash verification passed: $ACTUAL_HASH"
+
+echo "Copying mdsdrv.bin to project root..."
+run-command cp "${BUILD_DIR}/mdsdrv.bin" "${SCRIPT_ROOT}/mdsdrv.bin"
+echo "mdsdrv.bin copied to: ${SCRIPT_ROOT}/mdsdrv.bin"
 
 echo "Build complete!"
 
