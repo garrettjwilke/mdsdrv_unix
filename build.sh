@@ -12,6 +12,15 @@ CLOWNASM_COMMIT="1a3f6c6a0253c98214d3a611f0fc20348185897f"
 CLOWNASM_CLOWNCOMMON_COMMIT="37d1efd90725a7c30dce5f38ea14f1bc3c29a52f"
 SALVADOR_COMMIT="1662b625a8dcd6f3f7e3491c88840611776533f5"
 
+# Detect number of CPU cores for parallel builds
+if command -v nproc &> /dev/null; then
+  NUM_CORES=$(nproc)
+elif command -v sysctl &> /dev/null; then
+  NUM_CORES=$(sysctl -n hw.ncpu)
+else
+  NUM_CORES=4
+fi
+
 error-message() {
   echo "ERROR: $1" >&2
   exit 1
@@ -92,8 +101,8 @@ install-sjasmplus() {
   run-command git checkout "${SJASMPLUS_LUABRIDGE_COMMIT}"
   cd .. || error-message "Failed to return from LuaBridge directory"
   
-  echo "Building sjasmplus..."
-  run-command make
+  echo "Building sjasmplus (using ${NUM_CORES} cores)..."
+  run-command make -j"${NUM_CORES}"
   
   check-file "sjasmplus"
   echo "Copying sjasmplus to bin directory..."
@@ -126,8 +135,8 @@ install-salvador() {
   echo "Checking out pinned commit ${SALVADOR_COMMIT}..."
   run-command git checkout "${SALVADOR_COMMIT}"
   
-  echo "Building salvador..."
-  run-command make
+  echo "Building salvador (using ${NUM_CORES} cores)..."
+  run-command make -j"${NUM_CORES}"
   
   check-file "salvador"
   echo "Copying salvador to bin directory..."
@@ -176,8 +185,8 @@ install-clownasm() {
   echo "Running cmake..."
   run-command cmake ..
   
-  echo "Building clownassembler..."
-  run-command cmake --build .
+  echo "Building clownassembler (using ${NUM_CORES} cores)..."
+  run-command cmake --build . --parallel "${NUM_CORES}"
   
   check-file "clownassembler_asm68k"
   echo "Copying clownassembler_asm68k to bin directory..."
