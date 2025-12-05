@@ -4,39 +4,8 @@ set -euo pipefail
 # Get the directory where this script is located (project root)
 SCRIPT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-# MDSDRV will be cloned in the same directory as this script
-MDSDRV_DIR="${SCRIPT_ROOT}/MDSDRV"
-
-# Validate target directory if it already exists
-if [ -e "${MDSDRV_DIR}" ] && [ ! -d "${MDSDRV_DIR}" ]; then
-  echo "ERROR: '${MDSDRV_DIR}' exists but is not a directory" >&2
-  exit 1
-fi
-
-# Clone MDSDRV if it doesn't exist
-if [ ! -d "${MDSDRV_DIR}" ]; then
-  echo "Cloning MDSDRV repository to: ${MDSDRV_DIR}"
-  git clone https://github.com/superctr/MDSDRV.git "${MDSDRV_DIR}"
-else
-  echo "MDSDRV directory already exists at ${MDSDRV_DIR}"
-  echo "Updating repository..."
-  pushd "${MDSDRV_DIR}" > /dev/null || exit 1
-  git fetch origin
-  git pull origin master || true
-  popd > /dev/null || exit 1
-fi
-
-# Change to MDSDRV directory
-cd "${MDSDRV_DIR}" || exit 1
-
-# Set SCRIPT_DIR to the MDSDRV directory
-SCRIPT_DIR="${MDSDRV_DIR}"
-
-BUILD_DIR=${SCRIPT_DIR}/out
-DEPS_DIR=${SCRIPT_DIR}/deps
-BIN_DIR=${SCRIPT_DIR}/bin
-
 # Pinned commit hashes for reproducible builds
+MDSDRV_COMMIT="fefc7178579c59505f860e292e76af4a1857c6eb"
 SJASMPLUS_COMMIT="9d18ee7575fefee97cd8866361770b44a2966a67"
 SJASMPLUS_LUABRIDGE_COMMIT="c19931b48bdd413dd54ec7852bc32c6468668f81"
 CLOWNASM_COMMIT="1a3f6c6a0253c98214d3a611f0fc20348185897f"
@@ -217,6 +186,41 @@ install-clownasm() {
   popd > /dev/null || error-message "Failed to return from deps directory"
   echo "clownassembler installation complete"
 }
+
+# MDSDRV will be cloned in the same directory as this script
+MDSDRV_DIR="${SCRIPT_ROOT}/MDSDRV"
+
+# Validate target directory if it already exists
+if [ -e "${MDSDRV_DIR}" ] && [ ! -d "${MDSDRV_DIR}" ]; then
+  echo "ERROR: '${MDSDRV_DIR}' exists but is not a directory" >&2
+  exit 1
+fi
+
+# Clone MDSDRV if it doesn't exist
+if [ ! -d "${MDSDRV_DIR}" ]; then
+  echo "Cloning MDSDRV repository to: ${MDSDRV_DIR}"
+  run-command git clone https://github.com/superctr/MDSDRV.git "${MDSDRV_DIR}"
+else
+  echo "MDSDRV directory already exists at ${MDSDRV_DIR}"
+  echo "Updating repository..."
+  pushd "${MDSDRV_DIR}" > /dev/null || exit 1
+  run-command git fetch origin
+  popd > /dev/null || exit 1
+fi
+
+# Change to MDSDRV directory
+cd "${MDSDRV_DIR}" || exit 1
+
+# Checkout pinned commit
+echo "Checking out pinned commit ${MDSDRV_COMMIT}..."
+run-command git checkout "${MDSDRV_COMMIT}"
+
+# Set SCRIPT_DIR to the MDSDRV directory
+SCRIPT_DIR="${MDSDRV_DIR}"
+
+BUILD_DIR=${SCRIPT_DIR}/out
+DEPS_DIR=${SCRIPT_DIR}/deps
+BIN_DIR=${SCRIPT_DIR}/bin
 
 # Check for required commands
 echo "Checking for required tools..."
