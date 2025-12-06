@@ -11,7 +11,7 @@ OUT_DIR := $(MDSDRV_DIR)/out
 NUM_CORES := $(shell nproc || sysctl -n hw.ncpu || echo 4)
 
 # Pinned commits
-MDSDRV_COMMIT := fefc7178579c59505f860e292e76af4a1857c6eb
+MDSDRV_COMMIT := rng-patterns
 SJASMPLUS_COMMIT := 9d18ee7575fefee97cd8866361770b44a2966a67
 SJASMPLUS_LUABRIDGE_COMMIT := a08915f5c1703204467df99a62c6378e089c753a
 SALVADOR_COMMIT := 1662b625a8dcd6f3f7e3491c88840611776533f5
@@ -30,24 +30,24 @@ clone: $(MDSDRV_DIR)
 
 deps: sjasmplus salvador clownasm
 
-build: $(OUT_DIR)/mdssub.zx0 $(OUT_DIR)/mdsdrv.bin
+build: $(OUT_DIR)/mdssub.zx0 $(OUT_DIR)/mdsdrv-rng.bin
 
 copy:
-	@echo "SHA256 (out/mdsdrv.bin): $$(sha256sum $(OUT_DIR)/mdsdrv.bin | cut -d' ' -f1)"
-	cp $(OUT_DIR)/mdsdrv.bin $(ROOT_DIR)/mdsdrv.bin
-	@echo "Copied mdsdrv.bin → $(ROOT_DIR)"
+	@echo "SHA256 (out/mdsdrv-rng.bin): $$(sha256sum $(OUT_DIR)/mdsdrv-rng.bin | cut -d' ' -f1)"
+	cp $(OUT_DIR)/mdsdrv-rng.bin $(ROOT_DIR)/mdsdrv-rng.bin
+	@echo "Copied mdsdrv-rng.bin → $(ROOT_DIR)"
 
 clean:
 	rm -rf $(MDSDRV_DIR)
-	rm -f $(ROOT_DIR)/mdsdrv.bin
-	@echo "Removed MDSDRV directory and mdsdrv.bin"
+	rm -f $(ROOT_DIR)/mdsdrv-rng.bin
+	@echo "Removed MDSDRV directory and mdsdrv-rng.bin"
 
 # ----------------------------
 # Clone MDSDRV
 # ----------------------------
 
 $(MDSDRV_DIR):
-	git clone https://github.com/superctr/MDSDRV.git $@
+	git clone https://github.com/garrettjwilke/MDSDRV.git $@
 	cd $@ && git checkout $(MDSDRV_COMMIT)
 
 # ----------------------------
@@ -106,5 +106,5 @@ $(OUT_DIR)/mdssub.bin: | $(OUT_DIR)
 $(OUT_DIR)/mdssub.zx0: $(OUT_DIR)/mdssub.bin
 	$(BIN_DIR)/salvador $< $@
 
-$(OUT_DIR)/mdsdrv.bin: $(OUT_DIR)/mdssub.zx0
-	cd $(MDSDRV_DIR) && bin/clownassembler_asm68k /k /p /o ae- src/blob.68k,out/mdsdrv.bin
+$(OUT_DIR)/mdsdrv-rng.bin: $(OUT_DIR)/mdssub.zx0
+	cd $(MDSDRV_DIR) && bin/clownassembler_asm68k /k /p /o ae- src/blob.68k,out/mdsdrv-rng.bin
