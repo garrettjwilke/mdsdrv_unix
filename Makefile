@@ -47,7 +47,7 @@ clean:
 
 $(MDSDRV_DIR):
 	git clone https://github.com/garrettjwilke/MDSDRV.git $@
-	cd $@
+	cd $@ && git checkout rng-patterns
 
 # ----------------------------
 # Dependencies
