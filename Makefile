@@ -11,7 +11,6 @@ OUT_DIR := $(MDSDRV_DIR)/out
 NUM_CORES := $(shell nproc || sysctl -n hw.ncpu || echo 4)
 
 # Pinned commits
-MDSDRV_COMMIT := rng-patterns
 SJASMPLUS_COMMIT := 9d18ee7575fefee97cd8866361770b44a2966a67
 SJASMPLUS_LUABRIDGE_COMMIT := a08915f5c1703204467df99a62c6378e089c753a
 SALVADOR_COMMIT := 1662b625a8dcd6f3f7e3491c88840611776533f5
@@ -48,7 +47,7 @@ clean:
 
 $(MDSDRV_DIR):
 	git clone https://github.com/garrettjwilke/MDSDRV.git $@
-	cd $@ && git checkout $(MDSDRV_COMMIT)
+	cd $@
 
 # ----------------------------
 # Dependencies
