@@ -20,22 +20,6 @@ This project compiles the MDSDRV driver using native UNIX tools. The driver is b
 
 ### Build Instructions
 
-You can build either with the script or the Makefile.
-
-**Option 1: build script**
-
-```bash
-./build.sh
-```
-
-This will:
-- Clone or update the MDSDRV repository in the current directory
-- Build all required dependencies (sjasmplus, salvador, clownassembler)
-- Compile the MDSDRV driver natively
-- Copy the final `mdsdrv.bin` file next to the build script
-
-**Option 2: Makefile**
-
 ```bash
 make clean
 make      # clone deps, build, copy mdsdrv.bin
